@@ -168,9 +168,43 @@ def reviewer_agent(url: str, category: str, features: str, details: str):
     return response.content
 
 
+def save_review_json(url: str, category: str, features: str, details: str, final_review: str) -> str:
+    """Save review data as JSON file"""
+    import json
+    from pathlib import Path
+    from urllib.parse import urlparse
+    
+    # Create json directory if it doesn't exist
+    json_dir = Path("reviews/json")
+    json_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create filename from URL and timestamp
+    domain = urlparse(url).netloc.replace("www.", "")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{domain}_{timestamp}.json"
+    
+    # Prepare data structure
+    review_data = {
+        "url": url,
+        "category": category,
+        "features": features,
+        "details": details,
+        "final_review": final_review,
+        "timestamp": datetime.now().isoformat()
+    }
+    
+    # Save to JSON file
+    json_path = json_dir / filename
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(review_data, f, indent=2, ensure_ascii=False)
+        
+    return str(json_path)
+
+
 def main():
     print("\n🤖 Welcome to GenAI Tool Reviewer!\n")
-    url = input("Enter the GenAI tool website URL (e.g., https://elevenlabs.io): ")
+    url = input("Which GenAI tool you would like to review? Share URL ( ex: elevenlabs.io) : ")
+    
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
 
@@ -180,10 +214,13 @@ def main():
     details = mischievous_agent(retriever)
     final_review = reviewer_agent(url, category, features, details)
 
-    filename = save_review(url, category, features, details, final_review)
+    html_file = save_review(url, category, features, details, final_review)
+    json_file = save_review_json(url, category, features, details, final_review)
 
     print("\n📝 === Review Generation Complete ===")
-    print(f"\n✨ Review saved to: {filename} ✨")
+    print(f"\n✨ Review saved to:")
+    print(f"HTML: {html_file}")
+    print(f"JSON: {json_file}")
     print("\nOpen the HTML file in your browser to view the formatted review.")
 
 

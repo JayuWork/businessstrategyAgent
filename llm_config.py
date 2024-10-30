@@ -1,13 +1,22 @@
 from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama  # Updated import
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
 # Load environment variables
 load_dotenv()
 
+# Default model setting
+DEFAULT_MODEL = "llama"  # Options: "llama" or "gpt"
 
-def get_llm(temperature=0):
+def get_llm(temperature=0, model=DEFAULT_MODEL):
     """Get LLM instance with specified temperature"""
+    if model == "llama":
+        return ChatOllama(
+            model="llama3.1",  # or any other model you have in Ollama
+            temperature=temperature
+        )
     return ChatOpenAI(model="gpt-3.5-turbo", temperature=temperature)
 
 

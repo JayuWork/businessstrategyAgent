@@ -13,6 +13,8 @@ import re
 # Load environment variables
 load_dotenv()
 
+url = ""
+domain_name = "";
 
 def load_and_process_url(url: str):
     """Load and process website content"""
@@ -316,7 +318,7 @@ def extract_links(text, section_pattern):
 
 
 def create_html_content(
-    url: str, category: str, features: str, details: str, review: str
+    url: str, domain_name: str, category: str, features: str, details: str, review: str
 ):
     """Create formatted HTML content"""
     html_template = """
@@ -325,7 +327,7 @@ def create_html_content(
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AI Tool Review: {url}</title>
+        <title>AI Tool Review: {domain_name}</title>
         <style>
             body {{
                 font-family: Arial, sans-serif;
@@ -528,12 +530,10 @@ def create_html_content(
         "{quick_links_section}",
     )
 
-    # Format the URL for display
-    display_url = url.replace('https://', '').replace('http://', '').split('/')[0]
     
     return html_template.format(
         url=url,
-        display_url=display_url,
+        display_url=domain_name,
         date=current_date,
         summary=summary,
         category=category_html,
@@ -544,27 +544,29 @@ def create_html_content(
     )
 
 
-def save_review(url: str, category: str, features: str, details: str, review: str):
+def save_review(url: str, domain_name: str, category: str, features: str, details: str, review: str):
     """Save the review as HTML"""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"ai_tool_review_{timestamp}.html"
+    filename = f"{domain_name}_review_{timestamp}.html"
 
-    html_content = create_html_content(url, category, features, details, review)
+    html_content = create_html_content(url, domain_name, category, features, details, review)
 
     with open(filename, "w", encoding="utf-8") as f:
         f.write(html_content)
 
     return filename
 
-
 def main():
     print("\n🤖 Welcome to GenAI Tool Reviewer!\n")
     url = input("Enter the GenAI tool website URL (e.g., https://elevenlabs.io): ")
-
+   
     # Process website
     # Add http:// prefix if not present
     if not url.startswith(("http://", "https://")):
         url = "https://" + url
+
+    # Extract domain name from URL
+    domain_name = url.replace('https://', '').replace('http://', '').split('/')[0]
 
     retriever = load_and_process_url(url)
 
@@ -577,7 +579,7 @@ def main():
     final_review = reviewer_agent(url, category, features, details)
 
     # Save and display review
-    filename = save_review(url, category, features, details, final_review)
+    filename = save_review(url, domain_name, category, features, details, final_review)
 
     print("\n📝 === Review Generation Complete ===")
     print(f"\n✨ Review saved to: {filename} ✨")

@@ -121,21 +121,122 @@ def create_html_content(url: str, category: str, features: str, details: str, re
         quick_links_section=quick_links_section
     )
 
-def save_review(url: str, category: str, features: str, details: str, review: str):
-    """Save the review as HTML"""
-    # Create filename from URL
-    domain_name = url.replace('https://', '').replace('http://', '').split('/')[0]
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"output/{domain_name}_review_{timestamp}.html"
+def save_review(url: str, category: str, features: str, details: str, final_review: str, **kwargs) -> str:
+    """Save review as HTML file"""
+    from pathlib import Path
+    from datetime import datetime
+    from urllib.parse import urlparse
     
     # Create output directory if it doesn't exist
-    import os
-    os.makedirs('output', exist_ok=True)
+    output_dir = Path("output/html")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Generate and save HTML content
-    html_content = create_html_content(url, category, features, details, review)
+    # Create filename from URL and timestamp
+    domain = urlparse(url).netloc.replace("www.", "")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{domain}_{timestamp}.html"
     
-    with open(filename, "w", encoding='utf-8') as f:
+    # Generate HTML content
+    html_content = format_review_html(
+        url=url,
+        category=category,
+        features=features,
+        details=details,
+        final_review=final_review
+    )
+    
+    # Save to file
+    output_path = output_dir / filename
+    with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
+        
+    return str(output_path)
+
+def format_review_html(**kwargs) -> str:
+    """Format review data as HTML"""
+    from datetime import datetime
     
-    return filename
+    template = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>AI Tool Review</title>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                color: #333;
+            }}
+            .section {{
+                margin: 2rem 0;
+                padding: 1rem;
+                background: #f9f9f9;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }}
+            .header {{
+                border-bottom: 2px solid #eee;
+                margin-bottom: 2rem;
+                padding-bottom: 1rem;
+            }}
+            h1, h2 {{
+                color: #2c3e50;
+            }}
+            a {{
+                color: #3498db;
+                text-decoration: none;
+            }}
+            a:hover {{
+                text-decoration: underline;
+            }}
+            .feature {{
+                margin: 1rem 0;
+                padding: 1rem;
+                background: white;
+                border-radius: 4px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            }}
+            .timestamp {{
+                color: #666;
+                font-size: 0.9em;
+                margin-top: 1rem;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>AI Tool Review</h1>
+            <p><strong>Website:</strong> <a href="{url}" target="_blank">{url}</a></p>
+            <p class="timestamp">Generated on: {timestamp}</p>
+        </div>
+        
+        <div class="section">
+            <h2>Category</h2>
+            {category}
+        </div>
+        
+        <div class="section">
+            <h2>Key Features</h2>
+            {features}
+        </div>
+        
+        <div class="section">
+            <h2>Additional Details</h2>
+            {details}
+        </div>
+        
+        <div class="section">
+            <h2>Final Review</h2>
+            {final_review}
+        </div>
+    </body>
+    </html>
+    """
+    
+    return template.format(
+        timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        **kwargs
+    )

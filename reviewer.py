@@ -4,7 +4,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import json
 from html_generator import save_review
-from agents import review_url
+from agents.agents import review_url  # Updated import path
 
 # Load environment variables
 load_dotenv()

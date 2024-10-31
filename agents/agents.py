@@ -4,7 +4,14 @@ from langchain_openai import OpenAIEmbeddings
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from typing import Dict, Any
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from llm_config import get_llm, get_rag_chain
+
+# Rest of the agents.py code remains the same...
 
 def load_and_process_url(url: str):
     """Load and process website content"""

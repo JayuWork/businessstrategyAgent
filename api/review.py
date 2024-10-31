@@ -5,8 +5,7 @@ import sys
 import os
 
 # Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from agents import review_url
+from agents.agents import review_url  # Updated import path
 
 app = FastAPI(
     title="AI Tool Reviewer API",

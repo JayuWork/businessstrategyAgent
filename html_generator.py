@@ -126,11 +126,11 @@ def save_review(url: str, category: str, features: str, details: str, review: st
     # Create filename from URL
     domain_name = url.replace('https://', '').replace('http://', '').split('/')[0]
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"reviews/{domain_name}_review_{timestamp}.html"
+    filename = f"output/{domain_name}_review_{timestamp}.html"
     
-    # Create reviews directory if it doesn't exist
+    # Create output directory if it doesn't exist
     import os
-    os.makedirs('reviews', exist_ok=True)
+    os.makedirs('output', exist_ok=True)
     
     # Generate and save HTML content
     html_content = create_html_content(url, category, features, details, review)
